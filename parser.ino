@@ -237,7 +237,7 @@ void print_sensors_adjust() {
  */
 void parser_ready() {
   sofar=0;  // clear input buffer
-  Serial.print(F("\n>"));  // signal ready to receive input
+  Serial.println(F("~"));  // signal ready to receive input
   last_cmd_time = millis();
 }
 
@@ -253,7 +253,7 @@ void parser_listen() {
     if(sofar<MAX_BUF) buffer[sofar++]=c;  // store it
     if(c=='\n') {
       buffer[sofar]=0;  // end the buffer so string functions work right
-      //Serial.print(F("\r\n"));  // echo a return character for humans
+      Serial.print(F("\r\n"));  // echo a return character for humans
       parser_processCommand();  // do something with the command
 
 #ifdef ONE_COMMAND_AT_A_TIME
