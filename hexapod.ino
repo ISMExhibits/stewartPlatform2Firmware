@@ -394,14 +394,14 @@ char hexapod_read_switches() {
     Serial.print(state);
     Serial.print('\t');
 #endif
-    if(robot.arms[i].limit_switch_state != state) {
+    if((robot.arms[i].limit_switch_state == LOW) && (state == HIGH)) {
       robot.arms[i].limit_switch_state = state;
 #ifdef DEBUG_SWITCHES > 0
       Serial.print(F("Switch "));
       Serial.println(i,DEC);
 #endif
     }
-    if(state == HIGH) ++hit;
+    if(robot.arms[i].limit_switch_state == HIGH) ++hit;
   }
 #ifdef DEBUG_SWITCHES > 0
   Serial.print('\n');
@@ -434,8 +434,11 @@ void robot_find_home() {
   Serial.println(F("Finding min..."));
 
   motor_enable();
-  
+  //clear limit switch state variable
   char i;
+  for(i=0;i<6;++i) {
+    robot.arms[i].limit_switch_state = LOW;
+  }
   // until all switches are hit
   while(hexapod_read_switches()<6) {
 #if VERBOSE > 0
@@ -477,6 +480,7 @@ void robot_find_home() {
   // recalculate XYZ positions
   hexapod_setup();
   hexapod_loadHomeAngles();
+  Serial.println(F("Homing complete!"));
 }
 
 
