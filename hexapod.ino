@@ -401,7 +401,7 @@ char hexapod_read_switches() {
       Serial.println(i,DEC);
 #endif
     }
-    if(state == LOW) ++hit;
+    if(state == HIGH) ++hit;
   }
 #ifdef DEBUG_SWITCHES > 0
   Serial.print('\n');
@@ -444,7 +444,7 @@ void robot_find_home() {
     // for each stepper,
     for(i=0;i<6;++i) {
       // if this switch hasn't been hit yet
-      if(robot.arms[i].limit_switch_state == HIGH) {
+      if(robot.arms[i].limit_switch_state == LOW) {
         // move "down"
         hexapod_onestep(i,-1);
       }

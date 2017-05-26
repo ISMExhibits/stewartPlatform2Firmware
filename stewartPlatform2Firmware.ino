@@ -107,7 +107,7 @@ void help() {
                    "R60 [Aa] [Bb] [Cc] [Dd] [Ed] (set sensors adjustment to new value [abcde])\n"\
                    "R61 (display switch adjustment)\n"\
                    "R70 (write sensor adjustments to memory)\n"\
-                   "R71 (reset switch adjustmentles to factory default)\n"));
+                   "R71 (first time setup/reset switch adjustmentles to factory default)\n"));
   // See hexapod_position() for note about why G92 is removed
 }
 
