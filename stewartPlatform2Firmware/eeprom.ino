@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 //--------------------------------------------------------
 // Evil Minion 5 Axis robot firmware
 // dan@marginallyclever.com 

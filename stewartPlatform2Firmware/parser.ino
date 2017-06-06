@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
 // dan@marginallycelver.com 2013-09-20

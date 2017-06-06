@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
 // dan@marginallycelver.com 2013-09-20
@@ -434,6 +436,7 @@ void robot_find_home() {
   Serial.println(F("Finding min..."));
 
   motor_enable();
+  pause(1000);
   //clear limit switch state variable
   char i;
   for(i=0;i<6;++i) {
