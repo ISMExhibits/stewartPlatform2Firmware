@@ -15,6 +15,8 @@ static char buffer[MAX_BUF];  // where we store the message until we get a ';'
 static int sofar;  // how much is in the buffer
 static long last_cmd_time;    // prevent timeouts
 long line_number=0;
+bool running = false;
+int instr_num = 0;
 
 
 //------------------------------------------------------------------------------
@@ -35,7 +37,7 @@ float parseNumber(char code,float val) {
     ptr=strchr(ptr,' ')+1;
   }
   return val;
-} 
+}
 
 
 /**
@@ -84,9 +86,9 @@ float has_code(char code) {
 void parser_processCommand() {
   // blank lines
   if(buffer[0]==';') return;
-  
+
   long cmd;
-  
+
   // is there a line number?
   cmd=parseNumber('N',-1);
   if(cmd!=-1 && buffer[0]=='N') {  // line number must appear first on the line
@@ -96,7 +98,7 @@ void parser_processCommand() {
       Serial.println(line_number);
       return;
     }
-  
+
     // is there a checksum?
     if(strchr(buffer,'*')!=0) {
       // yes.  is it valid?
@@ -115,18 +117,18 @@ void parser_processCommand() {
       Serial.println(line_number);
       return;
     }
-    
+
     line_number++;
   }
-  
+
   if(!strncmp(buffer,"UID",3) && robot_uid==0) {
     robot_uid=atoi(strchr(buffer,' ')+1);
     saveUID();
   }
-  
+
   cmd = parseNumber('G',-1);
   switch(cmd) {
-  case  0: 
+  case  0:
   case  1: {  // move in a line
       acceleration = min(max(parseNumber('A',acceleration),1),2000);
       Vector3 offset=robot_get_end_plus_offset();
@@ -154,7 +156,7 @@ void parser_processCommand() {
   }
   case  4:  {  // dwell
     wait_for_segment_buffer_to_empty();
-    pause(parseNumber('S',0) + parseNumber('P',0)*1000);  
+    pause(parseNumber('S',0) + parseNumber('P',0)*1000);
     break;
   }
   case 28:  robot_find_home();  break;
@@ -197,7 +199,7 @@ void parser_processCommand() {
   case 114:  robot_where();  break;
   default:  break;
   }
-  
+
   cmd = parseNumber('R',-1);
   switch(cmd) {
   case  5: sayVersionNumber();  break;
@@ -212,10 +214,10 @@ void parser_processCommand() {
 
 void process_sensors_adjust() {
   int i;
-  
+
   for(i=0;i<NUM_AXIES;++i) {
     if(!has_code(motor_letters[i])) continue;
-    
+
     // get the new angle
     robot.steps_to_zero[i] = parseNumber(motor_letters[i], robot.steps_to_zero[i] );
   }
@@ -266,7 +268,7 @@ void parser_listen() {
       return;
     }
   }
-  
+
   // The PC will wait forever for the ready signal.
   // if Arduino hasn't received a new instruction in a while, send ready() again
   // just in case USB garbled ready and each half is waiting on the other.
@@ -274,6 +276,25 @@ void parser_listen() {
     parser_ready();
   }
 }
+
+void parse_prog(){
+  if (running){
+    if (sofar=0){
+      if (instr_num < 499){
+       strcpy_P(buffer, (PGM_P)pgm_read_word(&(code_table[instr_num])));
+       instr_num++;
+       parser_processCommand();
+       parser_ready();
+       return;
+      }
+      else {
+        instr_num = 0;
+        running = false;
+        parser_ready();
+      }
+    }
+    return;
+  }
 
 
 /**
