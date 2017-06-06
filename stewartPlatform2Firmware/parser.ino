@@ -197,6 +197,9 @@ void parser_processCommand() {
   case 100:  help();  break;
   case 110:  line_number = parseNumber('N',line_number);  break;
   case 114:  robot_where();  break;
+  case 200: run_prog(1); // start canned routine
+  case 201: run_prog(0); //stop
+  case 202: run_prog(2): // pause
   default:  break;
   }
 
@@ -210,6 +213,17 @@ void parser_processCommand() {
   default:  break;
   }
 }
+
+void run_prog(char go){
+  switch (go) {
+    case 0: running = true; //run gcode program
+    case 1: {running = false; //stop and reset gcode program
+      instr_num = 0;
+      }
+    case 2: running = false; //pause gcode without resetting instruciton number
+  }
+}
+
 
 
 void process_sensors_adjust() {
@@ -282,6 +296,7 @@ void parse_prog(){
     if (sofar=0){
       if (instr_num < 499){
        strcpy_P(buffer, (PGM_P)pgm_read_word(&(code_table[instr_num])));
+       Serial.println(buffer); //echo out the command
        instr_num++;
        parser_processCommand();
        parser_ready();
