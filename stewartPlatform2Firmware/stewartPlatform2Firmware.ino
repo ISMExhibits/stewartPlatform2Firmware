@@ -1,5 +1,7 @@
+#include <Bounce2.h>
 #include <Arduino.h>
 #include <avr/pgmspace.h>
+
 
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
@@ -34,6 +36,8 @@ char mode_abs = 1; // absolute mode?
 // misc
 long robot_uid = 0;
 
+Bounce button = Bounce();
+
 //------------------------------------------------------------------------------
 // Function Declarations
 //------------------------------------------------------------------------------
@@ -53,6 +57,19 @@ void sayVersionNumber();
     finds angle of dy/dx as a value from 0...2PI
     @return the angle
 */
+void input_setup(){
+  pinMode(BUTTON_PIN,INPUT_PULLUP);
+  button.attach(BUTTON_PIN);
+  button.interval(5);
+}
+
+void poll_inputs(){
+  button.update();
+  if (button.fell()){
+    run_prog(0);
+  }
+}
+
 float atan3(float dy, float dx) {
   float a = atan2(dy, dx);
   if (a < 0) a = (PI * 2.0) + a;
@@ -147,6 +164,7 @@ void setup() {
   delay(10000);
   motor_setup();
   segment_setup();
+  input_setup();
 
   hexapod_setup();
   feedrate(DEFAULT_FEEDRATE);  // set default speed
@@ -180,7 +198,7 @@ void loop() {
   Serial.println();
   delay(50);
 #endif
-
+  poll_inputs();
   parser_listen();
   parse_prog();
   

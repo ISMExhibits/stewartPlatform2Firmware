@@ -103,6 +103,7 @@
 #define MOTOR_5_ENABLE_PIN (28)
 #define MOTOR_5_LIMIT_PIN  (29)
 
+#define BUTTON_PIN (50)
 
 //------------------------------------------------------------------------------
 // EEPROM MEMORY MAP
