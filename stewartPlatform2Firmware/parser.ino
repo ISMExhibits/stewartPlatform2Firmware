@@ -12,17 +12,17 @@
 //------------------------------------------------------------------------------
 /**
 */
-float parseNumber(char code,float val);
-void output(char *code,float val);
-void outputvector(Vector3 &v,char*name);
-float has_code(char code);
-void parser_processCommand();
-void run_prog(char go);
-void process_sensors_adjust();
-void print_sensors_adjust();
-void parser_ready();
-void parser_listen();
-void parse_prog();
+//float parseNumber(char code,float val);
+//void output(char *code,float val);
+//void outputvector(Vector3 &v,char*name);
+//float has_code(char code);
+//void parser_processCommand();
+//void run_prog(char go);
+//void process_sensors_adjust();
+//void print_sensors_adjust();
+//void parser_ready();
+//void parser_listen();
+//void parse_prog();
 
 
 
@@ -34,7 +34,7 @@ static char buffer[MAX_BUF];  // where we store the message until we get a ';'
 static int sofar;  // how much is in the buffer
 static long last_cmd_time;    // prevent timeouts
 long line_number=0;
-bool running = false;
+char g_running = 0;
 int instr_num = 0;
 
 
@@ -216,9 +216,9 @@ void parser_processCommand() {
   case 100:  help();  break;
   case 110:  line_number = parseNumber('N',line_number);  break;
   case 114:  robot_where();  break;
-  case 200: run_prog(1); // start canned routine
-  case 201: run_prog(0); //stop
-  case 202: run_prog(2); // pause
+  case 200: run_prog(0); break;// start canned routine
+  case 201: run_prog(1); break;//stop
+  case 202: run_prog(2); break;// pause
   default:  break;
   }
 
@@ -233,13 +233,19 @@ void parser_processCommand() {
   }
 }
 
-void run_prog(char go){
+void run_prog(int go){
   switch (go) {
-    case 0: running = true; //run gcode program
-    case 1: {running = false; //stop and reset gcode program
+    case 0: {g_running = 1; //run gcode program
+             Serial.println(F("GCode Started.")); break;
+    }
+    case 1: {g_running = 0; //stop and reset gcode program
       instr_num = 0;
+      Serial.println(F("GCode Stopped and reset.")); break;
       }
-    case 2: running = false; //pause gcode without resetting instruciton number
+    case 2: {g_running = 0; //pause gcode without resetting instruciton number
+            Serial.println(F("GCode Stopped and reset.")); break;
+    }
+    default: break;
   }
 }
 
@@ -311,11 +317,11 @@ void parser_listen() {
 }
 
 void parse_prog(){
-  if (running){
-    if (sofar=0){
+  if (g_running == 1){
+    if (sofar==0){
       if (instr_num < 499){
        strcpy_P(buffer, (PGM_P)pgm_read_word(&(code_table[instr_num])));
-       Serial.println(buffer); //echo out the command
+       Serial.println(buffer); //echo out the command number
        instr_num++;
        parser_processCommand();
        parser_ready();
@@ -323,12 +329,14 @@ void parse_prog(){
       }
       else {
         instr_num = 0;
-        running = false;
+        g_running = 0;
+        Serial.println(F("GCode Program Finished."));
         parser_ready();
       }
     }
     return;
   }
+  return;
 }
 
 

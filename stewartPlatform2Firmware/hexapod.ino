@@ -26,25 +26,25 @@ Hexapod robot;
 //------------------------------------------------------------------------------
 /**
 */
-void hexapod_setup();
-void hexapod_setupAnglesFirstTime();
-void hexapod_loadHomeAngles();
-void hexapod_writeAnglesToEEPROM();
-void hexapod_build_shoulders();
-void update_ik(Vector3 &mov,Vector3 &rpy);
-void hexapod_update_endeffector(Vector3 &mov,Vector3 &rpy);
-void hexapod_update_wrists()
-void hexapod_update_shoulder_angles()
-void robot_line(float newx,float newy,float newz,float newu,float newv,float neww,float new_feed_rate);
-void robot_position(float npx,float npy,float npz,float npu,float npv,float npw);
-char hexapod_read_switches();
-void hexapod_onestep(int motor,int dir);
-void robot_find_home();
-void robot_arc(float cx,float cy,float x,float y,float z,float dir,float new_feed_rate);
-void robot_tool_offset(int axis,float x,float y,float z);
-Vector3 robot_get_end_plus_offset();
-void robot_tool_change(int tool_id);
-void robot_where();
+//void hexapod_setup();
+//void hexapod_setupAnglesFirstTime();
+//void hexapod_loadHomeAngles();
+//void hexapod_writeAnglesToEEPROM();
+//void hexapod_build_shoulders();
+//void update_ik(Vector3 &mov,Vector3 &rpy);
+//void hexapod_update_endeffector(Vector3 &mov,Vector3 &rpy);
+//void hexapod_update_wrists()
+//void hexapod_update_shoulder_angles()
+//void robot_line(float newx,float newy,float newz,float newu,float newv,float neww,float new_feed_rate);
+//void robot_position(float npx,float npy,float npz,float npu,float npv,float npw);
+//char hexapod_read_switches();
+//void hexapod_onestep(int motor,int dir);
+//void robot_find_home();
+//void robot_arc(float cx,float cy,float x,float y,float z,float dir,float new_feed_rate);
+//void robot_tool_offset(int axis,float x,float y,float z);
+//Vector3 robot_get_end_plus_offset();
+//void robot_tool_change(int tool_id);
+//void robot_where();
 
 //------------------------------------------------------------------------------
 // METHODS

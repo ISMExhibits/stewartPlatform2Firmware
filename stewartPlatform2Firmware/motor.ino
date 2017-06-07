@@ -19,12 +19,12 @@ const char *motor_letters = "ABCDE";
 //------------------------------------------------------------------------------
 /**
 */
-void motor_setup() ;
-void motor_segment(float new_feed_rate);
-void motor_enable();
-void motor_disable();
-void motor_where();
-void move_motor(int i);
+//void motor_setup() ;
+//void motor_segment(float new_feed_rate);
+//void motor_enable();
+//void motor_disable();
+//void motor_where();
+//void move_motor(int i);
 
 
 

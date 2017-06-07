@@ -182,6 +182,8 @@ void loop() {
 #endif
 
   parser_listen();
+  parse_prog();
+  
 }
 
 

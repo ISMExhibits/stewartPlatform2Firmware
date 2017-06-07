@@ -19,7 +19,7 @@ long EEPROM_readLong(int ee);
 void EEPROM_writeFloat(int ee, float value);
 float EEPROM_readFloat(int ee);
 void saveAdjustments();
-char loadVersion();
+//char loadVersion();
 
 
 //------------------------------------------------------------------------------

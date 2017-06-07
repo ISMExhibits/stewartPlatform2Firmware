@@ -20,22 +20,22 @@
 //------------------------------------------------------------------------------
 /**
 */
-void wait_for_segment_buffer_to_empty();
-char segment_buffer_full();
-FORCE_INLINE int get_next_segment(int i);
-FORCE_INLINE int get_prev_segment(int i);
-float max_speed_allowed(float acceleration, float target_velocity, float distance);
-void segment_setup();
-void recalculate_reverse2(Segment *prev,Segment *current,Segment *next);
-void recalculate_reverse();
-void recalculate_forward();
-int intersection_time(float acceleration,float distance,float start_speed,float end_speed);
-void segment_update_trapezoid(Segment *s,float start_speed,float end_speed);
-void recalculate_trapezoids();
-void recalculate_acceleration();
-FORCE_INLINE unsigned short calc_timer(long desired_freq_hz);
-void motor_prepare_segment(int n0,int n1,int n2,int n3,int n4,int n5,float new_feed_rate)
-
+//void wait_for_segment_buffer_to_empty();
+//char segment_buffer_full();
+//FORCE_INLINE int get_next_segment(int i);
+//FORCE_INLINE int get_prev_segment(int i);
+//float max_speed_allowed(float acceleration, float target_velocity, float distance);
+//void segment_setup();
+//void recalculate_reverse2(Segment *prev,Segment *current,Segment *next);
+//void recalculate_reverse();
+//void recalculate_forward();
+//int intersection_time(float acceleration,float distance,float start_speed,float end_speed);
+//void segment_update_trapezoid(Segment *s,float start_speed,float end_speed);
+//void recalculate_trapezoids();
+//void recalculate_acceleration();
+//FORCE_INLINE unsigned short calc_timer(long desired_freq_hz);
+//void motor_prepare_segment(int n0,int n1,int n2,int n3,int n4,int n5,float new_feed_rate)
+//
 
 
 
