@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <avr/pgmspace.h>
 
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
@@ -18,6 +19,8 @@
 #include "hexapod.h"
 
 
+
+
 //------------------------------------------------------------------------------
 // GLOBALS
 //------------------------------------------------------------------------------
@@ -30,6 +33,18 @@ char mode_abs = 1; // absolute mode?
 
 // misc
 long robot_uid = 0;
+
+//------------------------------------------------------------------------------
+// Function Declarations
+//------------------------------------------------------------------------------
+/**
+*/
+float atan3(float dy, float dx);
+void pause(long us);
+float feedrate(float nfr);
+void help();
+void sayVersionNumber();
+
 
 //------------------------------------------------------------------------------
 // METHODS
@@ -165,7 +180,7 @@ void loop() {
   Serial.println();
   delay(50);
 #endif
-  
+
   parser_listen();
 }
 

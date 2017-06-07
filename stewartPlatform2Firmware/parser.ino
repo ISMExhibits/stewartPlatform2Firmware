@@ -7,6 +7,25 @@
 // Copyright at end of file.
 // please see http://www.github.com/MarginallyClever/RotaryStewartPlatform2 for more information.
 
+//------------------------------------------------------------------------------
+// Function Declarations
+//------------------------------------------------------------------------------
+/**
+*/
+float parseNumber(char code,float val);
+void output(char *code,float val);
+void outputvector(Vector3 &v,char*name);
+float has_code(char code);
+void parser_processCommand();
+void run_prog(char go);
+void process_sensors_adjust();
+void print_sensors_adjust();
+void parser_ready();
+void parser_listen();
+void parse_prog();
+
+
+
 
 //------------------------------------------------------------------------------
 // GLOBALS
@@ -199,7 +218,7 @@ void parser_processCommand() {
   case 114:  robot_where();  break;
   case 200: run_prog(1); // start canned routine
   case 201: run_prog(0); //stop
-  case 202: run_prog(2): // pause
+  case 202: run_prog(2); // pause
   default:  break;
   }
 
@@ -310,6 +329,7 @@ void parse_prog(){
     }
     return;
   }
+}
 
 
 /**
