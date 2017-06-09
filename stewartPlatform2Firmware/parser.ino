@@ -243,7 +243,7 @@ void run_prog(int go){
       Serial.println(F("GCode Stopped and reset.")); break;
       }
     case 2: {g_running = 0; //pause gcode without resetting instruciton number
-            Serial.println(F("GCode Stopped and reset.")); break;
+            Serial.println(F("GCode Paused.")); break;
     }
     default: break;
   }

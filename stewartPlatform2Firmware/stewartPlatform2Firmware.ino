@@ -137,6 +137,9 @@ void help() {
                    "M100 (help)\n"\
                    "M110 N* (set line number to *)\n"\
                    "M114 (where)\n"\
+                   "M200 Start saved GCODE program\n"\
+                   "M201 Stop saved GCODE program\n"\
+                   "M202 Pause saved GCODE program\n"\
                    "UID * (write robot UID * to EEPROM)\n"\
                    "R60 [Aa] [Bb] [Cc] [Dd] [Ed] (set sensors adjustment to new value [abcde])\n"\
                    "R61 (display switch adjustment)\n"\
