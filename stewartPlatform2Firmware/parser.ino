@@ -175,7 +175,8 @@ void parser_processCommand() {
   }
   case  4:  {  // dwell
     wait_for_segment_buffer_to_empty();
-    pause(parseNumber('S',0) + parseNumber('P',0)*1000);
+    //pause(parseNumber('S',0) + parseNumber('P',0)*1000);
+    delay(parseNumber('P',1)*1000);
     break;
   }
   case 28:  robot_find_home();  break;
@@ -280,7 +281,7 @@ void print_sensors_adjust() {
  */
 void parser_ready() {
   sofar=0;  // clear input buffer
-  Serial.print(F("\n>"));  // signal ready to receive input
+  //Serial.print(F("\n>"));  // signal ready to receive input
   last_cmd_time = millis();
 }
 
@@ -320,7 +321,7 @@ void parse_prog(){
   if (g_running == 1){
     if (sofar==0){
       if( !segment_buffer_full()){
-        if (instr_num < 499){
+        if (instr_num < 505){
          strcpy_P(buffer, (PGM_P)pgm_read_word(&(code_table[instr_num])));
          sofar = strnlen_P((PGM_P)pgm_read_word(&(code_table[instr_num])),60);
          Serial.println(buffer); //echo out the command number
