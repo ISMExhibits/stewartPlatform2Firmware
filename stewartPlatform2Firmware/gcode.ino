@@ -1,6 +1,7 @@
-#include <avr/pgmspace.h>
+
+
 const char gc1[] PROGMEM = "M17";
-const char gc2[] PROGMEM = "G4 S250 P5";
+const char gc2[] PROGMEM = "G4 P6 S10";
 const char gc3[] PROGMEM = "G92 X0 Y0 Z0 U0 V0 W0";
 const char gc4[] PROGMEM = "G0 X1.958 Y0.931 Z0.591 U1.120 V0.020 W-0.023  F150.455";
 const char gc5[] PROGMEM = "G0 X1.973 Y1.099 Z0.499 U1.321 V0.023 W0.009  F151.04";
@@ -502,7 +503,7 @@ const char gc500[] PROGMEM = "G0 X1.826 Y0.296 Z0.942 U0.356 V0.006 W-0.298  F15
 const char gc501[] PROGMEM = "G0 X1.872 Y0.445 Z0.860 U0.536 V0.009 W-0.202  F150.13";
 const char gc502[] PROGMEM = "G0 X1.908 Y0.602 Z0.772 U0.725 V0.013 W-0.127  F150";
 const char gc503[] PROGMEM = "G0 X0 Y0 Z-3.2 U0 V0 W0 U0 F150";
-const char gc504[] PROGMEM = "G4 S250 P5";
+const char gc504[] PROGMEM = "G4 P6 S10";
 const char gc505[] PROGMEM = "M18";
 
 PGM_P const code_table[] PROGMEM = {

@@ -318,29 +318,29 @@ void parser_listen() {
 }
 
 void parse_prog(){
-  if (g_running == 1){
-    if (sofar==0){
-      if( !segment_buffer_full()){
-        if (instr_num < 505){
-         strcpy_P(buffer, (PGM_P)pgm_read_word(&(code_table[instr_num])));
-         sofar = strnlen_P((PGM_P)pgm_read_word(&(code_table[instr_num])),60);
-         Serial.println(buffer); //echo out the command number
-         Serial.println((millis()-last_cmd_time));
-         instr_num++;
-         parser_processCommand();
-         parser_ready();
-         return;
-        }
-        else {
-          instr_num = 0;
-          g_running = 0;
-          Serial.println(F("GCode Program Finished."));
-          parser_ready();
-        }
-      }
-    }
-    return;
-  }
+//  if (g_running == 1){
+//    if (sofar==0){
+//      if( !segment_buffer_full()){
+//        if (instr_num < 505){
+//         strcpy_P(buffer, (PGM_P)pgm_read_word(&(code_table[instr_num])));
+//         sofar = strnlen_P((PGM_P)pgm_read_word(&(code_table[instr_num])),60);
+//         Serial.println(buffer); //echo out the command number
+//         Serial.println((millis()-last_cmd_time));
+//         instr_num++;
+//         parser_processCommand();
+//         parser_ready();
+//         return;
+//        }
+//        else {
+//          instr_num = 0;
+//          g_running = 0;
+//          Serial.println(F("GCode Program Finished."));
+//          parser_ready();
+//        }
+//      }
+//    }
+//    return;
+//  }
   return;
 }
 
