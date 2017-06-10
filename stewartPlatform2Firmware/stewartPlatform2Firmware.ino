@@ -164,7 +164,7 @@ void setup() {
   loadConfig();
 
   Serial.begin(BAUD);  // open coms
-  delay(10000);
+  delay(3000);
   motor_setup();
   segment_setup();
   input_setup();
