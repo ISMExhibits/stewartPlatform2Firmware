@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
 // dan@marginallycelver.com 2013-09-20
@@ -12,6 +14,19 @@
 
 const char *motor_letters = "ABCDE";
 
+//------------------------------------------------------------------------------
+// Function Declarations
+//------------------------------------------------------------------------------
+/**
+*/
+//void motor_setup() ;
+//void motor_segment(float new_feed_rate);
+//void motor_enable();
+//void motor_disable();
+//void motor_where();
+//void move_motor(int i);
+
+
 
 //------------------------------------------------------------------------------
 // METHODS
@@ -19,7 +34,7 @@ const char *motor_letters = "ABCDE";
 
 void motor_setup() {
   int i;
-  
+
   // set up the pins
   robot.arms[0].motor_step_pin=MOTOR_0_STEP_PIN;
   robot.arms[0].motor_dir_pin=MOTOR_0_DIR_PIN;
@@ -30,28 +45,28 @@ void motor_setup() {
   robot.arms[1].motor_dir_pin=MOTOR_1_DIR_PIN;
   robot.arms[1].motor_enable_pin=MOTOR_1_ENABLE_PIN;
   robot.arms[1].limit_switch_pin=MOTOR_1_LIMIT_PIN;
-  
+
   robot.arms[2].motor_step_pin=MOTOR_2_STEP_PIN;
   robot.arms[2].motor_dir_pin=MOTOR_2_DIR_PIN;
   robot.arms[2].motor_enable_pin=MOTOR_2_ENABLE_PIN;
   robot.arms[2].limit_switch_pin=MOTOR_2_LIMIT_PIN;
-  
+
   robot.arms[3].motor_step_pin=MOTOR_3_STEP_PIN;
   robot.arms[3].motor_dir_pin=MOTOR_3_DIR_PIN;
   robot.arms[3].motor_enable_pin=MOTOR_3_ENABLE_PIN;
   robot.arms[3].limit_switch_pin=MOTOR_3_LIMIT_PIN;
-  
+
   robot.arms[4].motor_step_pin=MOTOR_4_STEP_PIN;
   robot.arms[4].motor_dir_pin=MOTOR_4_DIR_PIN;
   robot.arms[4].motor_enable_pin=MOTOR_4_ENABLE_PIN;
   robot.arms[4].limit_switch_pin=MOTOR_4_LIMIT_PIN;
-  
+
   robot.arms[5].motor_step_pin=MOTOR_5_STEP_PIN;
   robot.arms[5].motor_dir_pin=MOTOR_5_DIR_PIN;
   robot.arms[5].motor_enable_pin=MOTOR_5_ENABLE_PIN;
   robot.arms[5].limit_switch_pin=MOTOR_5_LIMIT_PIN;
-  
-  for(i=0;i<NUM_AXIES;++i) {  
+
+  for(i=0;i<NUM_AXIES;++i) {
     // set the motor pin & scale
     robot.arms[i].motor_scale=((i%2)? -1:1);
     pinMode(robot.arms[i].motor_step_pin,OUTPUT);
@@ -130,7 +145,7 @@ void motor_where() {
  */
 void move_motor(int i) {
   int j;
-  
+
   Serial.print("  forward ");
   Serial.println(i);
 

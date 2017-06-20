@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
 // dan@marginallycelver.com 2013-09-20
@@ -19,6 +21,30 @@
 //------------------------------------------------------------------------------
 Hexapod robot;
 
+//------------------------------------------------------------------------------
+// Function Declarations
+//------------------------------------------------------------------------------
+/**
+*/
+//void hexapod_setup();
+//void hexapod_setupAnglesFirstTime();
+//void hexapod_loadHomeAngles();
+//void hexapod_writeAnglesToEEPROM();
+//void hexapod_build_shoulders();
+//void update_ik(Vector3 &mov,Vector3 &rpy);
+//void hexapod_update_endeffector(Vector3 &mov,Vector3 &rpy);
+//void hexapod_update_wrists()
+//void hexapod_update_shoulder_angles()
+//void robot_line(float newx,float newy,float newz,float newu,float newv,float neww,float new_feed_rate);
+//void robot_position(float npx,float npy,float npz,float npu,float npv,float npw);
+//char hexapod_read_switches();
+//void hexapod_onestep(int motor,int dir);
+//void robot_find_home();
+//void robot_arc(float cx,float cy,float x,float y,float z,float dir,float new_feed_rate);
+//void robot_tool_offset(int axis,float x,float y,float z);
+//Vector3 robot_get_end_plus_offset();
+//void robot_tool_change(int tool_id);
+//void robot_where();
 
 //------------------------------------------------------------------------------
 // METHODS
@@ -28,7 +54,7 @@ Hexapod robot;
  */
 void hexapod_setup() {
   Vector3 zero(0,0,0);
-  
+
   hexapod_update_endeffector(zero,zero);
   hexapod_build_shoulders();
   hexapod_update_wrists();
@@ -114,7 +140,7 @@ void hexapod_build_shoulders() {
     arma.shoulder_to_elbow=-o1;
     armb.shoulder_to_elbow=o1;
   }
-  
+
 #if VERBOSE > 0
   for(i=0;i<6;++i) {
     Arm &arm=robot.arms[i];
@@ -157,8 +183,8 @@ void update_ik(Vector3 &mov,Vector3 &rpy) {
 void hexapod_update_endeffector(Vector3 &mov,Vector3 &rpy) {
   // translation
   robot.ee.pos = mov;
-  
-  // roll pitch & yaw  
+
+  // roll pitch & yaw
   robot.ee.r=rpy.x*DEG2RAD;
   robot.ee.p=rpy.y*DEG2RAD;
   robot.ee.y=rpy.z*DEG2RAD;
@@ -207,7 +233,7 @@ void hexapod_update_wrists() {
     arma.wrist = robot.ee.pos + robot.ee.relative + n1*T2W_X - o1*T2W_Y + robot.ee.up*T2W_Z;
     armb.wrist = robot.ee.pos + robot.ee.relative + n1*T2W_X + o1*T2W_Y + robot.ee.up*T2W_Z;
   }
-  
+
 #if VERBOSE > 0
   for(i=0;i<6;++i) {
     Arm &arm=robot.arms[i];
@@ -229,22 +255,22 @@ void hexapod_update_wrists() {
 void hexapod_update_shoulder_angles() {
   Vector3 ortho,w,wop,temp,r;
   float a,b,d,r1,r0,hh,y,x;
-  
+
   int i;
   for(i=0;i<6;++i) {
     Arm &arm=robot.arms[i];
-    
-#if VERBOSE > 0
-    Serial.print(i);
-#endif
+
+  #if VERBOSE > 0
+      Serial.print(i);
+  #endif
 
     // project wrist position onto plane of bicep (wop)
     ortho.x=cos((i/2)*TWOPI/3.0f);
     ortho.y=sin((i/2)*TWOPI/3.0f);
     ortho.z=0;
-    
+
     w = arm.wrist - arm.shoulder;
-    
+
     a=w | ortho;  //endeffector' distance
     wop = w - (ortho * a);
     //arm.wop.pos=wop + arm.shoulder;  // e' location
@@ -255,45 +281,45 @@ void hexapod_update_shoulder_angles() {
     b=sqrt(FOREARM_LENGTH*FOREARM_LENGTH-a*a);  // e'j distance
 
     // use intersection of circles to find elbow point.
-    //a = (r0r0 - r1r1 + d*d ) / (2 d) 
+    //a = (r0r0 - r1r1 + d*d ) / (2 d)
     r1=b;  // circle 1 centers on e'
     r0=BICEP_LENGTH;  // circle 0 centers on shoulder
     d=wop.Length();
     // distance from shoulder to the midpoint between the two possible intersections
     a = ( r0 * r0 - r1 * r1 + d*d ) / ( 2*d );
 
-#if VERBOSE > 0
-    Serial.print("\tb =");
-    Serial.println(b);
-    Serial.print("\td =");
-    Serial.println(d);
-    Serial.print("\ta =");
-    Serial.println(a);
-#endif
+  #if VERBOSE > 0
+      Serial.print("\tb =");
+      Serial.println(b);
+      Serial.print("\td =");
+      Serial.println(d);
+      Serial.print("\ta =");
+      Serial.println(a);
+  #endif
 
-    // normalize wop    
-    wop /= d;
-    // find the midpoint
-    temp=arm.shoulder+(wop*a);
-    // with a and r0 we can find h, the distance from midpoint to intersections.
-    hh=sqrt(r0*r0-a*a);
-    // get a normal to the line wop in the plane orthogonal to ortho
-    r = ortho ^ wop;
-    if(i%2==0) arm.elbow=temp + r * hh;
-    else       arm.elbow=temp - r * hh;
-    
-    // use atan2 to find theta
-    temp=arm.elbow-arm.shoulder;
-    y=-temp.z;
-    temp.z=0;
-    x=temp.Length();
-    if( ( arm.shoulder_to_elbow | temp ) < 0 ) x=-x;
-    arm.angle= atan2(-y,x) * RAD2DEG;
-#if VERBOSE > 0
-    Serial.print(i);
-    Serial.print("\tangle =");
-    Serial.println(arm.angle);
-#endif
+      // normalize wop
+      wop /= d;
+      // find the midpoint
+      temp=arm.shoulder+(wop*a);
+      // with a and r0 we can find h, the distance from midpoint to intersections.
+      hh=sqrt(r0*r0-a*a);
+      // get a normal to the line wop in the plane orthogonal to ortho
+      r = ortho ^ wop;
+      if(i%2==0) arm.elbow=temp + r * hh;
+      else       arm.elbow=temp - r * hh;
+
+      // use atan2 to find theta
+      temp=arm.elbow-arm.shoulder;
+      y=-temp.z;
+      temp.z=0;
+      x=temp.Length();
+      if( ( arm.shoulder_to_elbow | temp ) < 0 ) x=-x;
+      arm.angle= atan2(-y,x) * RAD2DEG;
+  #if VERBOSE > 0
+      Serial.print(i);
+      Serial.print("\tangle =");
+      Serial.println(arm.angle);
+  #endif
   }
 }
 
@@ -304,65 +330,65 @@ void hexapod_update_shoulder_angles() {
  * @input newy the destination y position
  **/
 void robot_line(float newx,float newy,float newz,float newu,float newv,float neww,float new_feed_rate) {
-  Vector3 endpos(newx,newy,newz);
-  Vector3 endrpy(newu,newv,neww);
+    Vector3 endpos(newx,newy,newz);
+    Vector3 endrpy(newu,newv,neww);
 
-  endpos.x -= robot.tool_offset[robot.current_tool].x;
-  endpos.y -= robot.tool_offset[robot.current_tool].y;
-  endpos.z -= robot.tool_offset[robot.current_tool].z;
-  
-  Vector3 startpos=robot.ee.pos;
-  Vector3 startrpy(robot.ee.r,robot.ee.p,robot.ee.y);
-  Vector3 dpos=endpos-startpos;
-  Vector3 drpy=endrpy-startrpy;
-  Vector3 ipos, irpy;
+    endpos.x -= robot.tool_offset[robot.current_tool].x;
+    endpos.y -= robot.tool_offset[robot.current_tool].y;
+    endpos.z -= robot.tool_offset[robot.current_tool].z;
 
-  //@TODO: find which of the wrist positions moves the furthest, base everything on that.
-  // ** BEGIN TOTAL JUNK
-  int steps_pos = ceil( dpos.Length() * (float)MM_PER_SEGMENT );
-  int steps_rpy = ceil( drpy.Length() * (float)MM_PER_SEGMENT );
-  int pieces = ( steps_pos > steps_rpy ? steps_pos : steps_rpy);
-  // ** END TOTAL JUNK
+    Vector3 startpos=robot.ee.pos;
+    Vector3 startrpy(robot.ee.r,robot.ee.p,robot.ee.y);
+    Vector3 dpos=endpos-startpos;
+    Vector3 drpy=endrpy-startrpy;
+    Vector3 ipos, irpy;
 
-#if VERBOSE > 0
-  outputvector(startpos,"start");
-  outputvector(endpos,"end");
-  Serial.print(pieces);
-  Serial.println(F(" pieces."));
-#endif
+    //@TODO: find which of the wrist positions moves the furthest, base everything on that.
+    // ** BEGIN TOTAL JUNK
+    int steps_pos = ceil( dpos.Length() * (float)MM_PER_SEGMENT );
+    int steps_rpy = ceil( drpy.Length() * (float)MM_PER_SEGMENT );
+    int pieces = ( steps_pos > steps_rpy ? steps_pos : steps_rpy);
+    // ** END TOTAL JUNK
 
-  int i;
-  float f;
-  for(i=1;i<pieces;++i) {
-    f = (float)i / (float)pieces;
-    ipos = startpos + dpos*f;
-    irpy = startrpy + drpy*f;
-    
-    update_ik(ipos,irpy);
+  #if VERBOSE > 0
+    outputvector(startpos,"start");
+    outputvector(endpos,"end");
+    Serial.print(pieces);
+    Serial.println(F(" pieces."));
+  #endif
+
+    int i;
+    float f;
+    for(i=1;i<pieces;++i) {
+      f = (float)i / (float)pieces;
+      ipos = startpos + dpos*f;
+      irpy = startrpy + drpy*f;
+
+      update_ik(ipos,irpy);
+      motor_segment(new_feed_rate);
+    }
+
+    update_ik(endpos,endrpy);
     motor_segment(new_feed_rate);
-  }
-  
-  update_ik(endpos,endrpy);
-  motor_segment(new_feed_rate);
-  
-  // remember the new position.
-  robot.ee.pos = endpos;
-  robot.ee.r = endrpy.x;
-  robot.ee.p = endrpy.y;
-  robot.ee.y = endrpy.z;  
+
+    // remember the new position.
+    robot.ee.pos = endpos;
+    robot.ee.r = endrpy.x;
+    robot.ee.p = endrpy.y;
+    robot.ee.y = endrpy.z;
 }
 
 
 void robot_position(float npx,float npy,float npz,float npu,float npv,float npw) {
   wait_for_segment_buffer_to_empty();
-  
+
   robot.ee.pos.x=npx;
   robot.ee.pos.y=npy;
   robot.ee.pos.z=npz;
   robot.ee.r=npu;
   robot.ee.p=npv;
   robot.ee.y=npw;
-  
+
   Vector3 rpy(robot.ee.r,robot.ee.p,robot.ee.y);
   // update kinematics (find angles)
   update_ik(robot.ee.pos,rpy);
@@ -371,7 +397,7 @@ void robot_position(float npx,float npy,float npz,float npu,float npv,float npw)
   Segment &old_seg = line_segments[get_prev_segment(last_segment)];
   int i;
   for(i=0;i<NUM_AXIES;++i) {
-    old_seg.a[i].step_count = 
+    old_seg.a[i].step_count =
     robot.arms[i].new_step = robot.arms[i].angle * MICROSTEP_PER_DEGREE;
   }
 
@@ -385,28 +411,28 @@ void robot_position(float npx,float npy,float npz,float npu,float npv,float npw)
  * @return 1 if a switch is being hit
  */
 char hexapod_read_switches() {
-  char i, hit=0;
-  int state;
-  
-  for(i=0;i<6;++i) {
-    state=digitalRead(robot.arms[i].limit_switch_pin);
-#ifdef DEBUG_SWITCHES > 0
-    Serial.print(state);
-    Serial.print('\t');
-#endif
-    if(robot.arms[i].limit_switch_state != state) {
-      robot.arms[i].limit_switch_state = state;
-#ifdef DEBUG_SWITCHES > 0
-      Serial.print(F("Switch "));
-      Serial.println(i,DEC);
-#endif
+    char i, hit=0;
+    int state;
+
+    for(i=0;i<6;++i) {
+      state=digitalRead(robot.arms[i].limit_switch_pin);
+  #ifdef DEBUG_SWITCHES > 0
+      Serial.print(state);
+      Serial.print('\t');
+  #endif
+      if((robot.arms[i].limit_switch_state == LOW) && (state == HIGH)) {
+        robot.arms[i].limit_switch_state = state;
+  #ifdef DEBUG_SWITCHES > 0
+        Serial.print(F("Switch "));
+        Serial.println(i,DEC);
+  #endif
+      }
+      if(robot.arms[i].limit_switch_state == HIGH) ++hit;
     }
-    if(state == LOW) ++hit;
-  }
-#ifdef DEBUG_SWITCHES > 0
-  Serial.print('\n');
-#endif
-  return hit;
+  #ifdef DEBUG_SWITCHES > 0
+    Serial.print('\n');
+  #endif
+    return hit;
 }
 
 
@@ -416,14 +442,14 @@ char hexapod_read_switches() {
  * @input the direction to move 1 for forward, -1 for backward
  **/
 void hexapod_onestep(int motor,int dir) {
-#if VERBOSE > 0
-  Serial.print('A'+motor);
-#endif
-  Arm &a = robot.arms[motor];
-  dir *= a.motor_scale;
-  digitalWrite(a.motor_dir_pin,dir>0?LOW:HIGH);
-  digitalWrite(a.motor_step_pin,HIGH);
-  digitalWrite(a.motor_step_pin,LOW);
+  #if VERBOSE > 0
+    Serial.print('A'+motor);
+  #endif
+    Arm &a = robot.arms[motor];
+    dir *= a.motor_scale;
+    digitalWrite(a.motor_dir_pin,dir>0?LOW:HIGH);
+    digitalWrite(a.motor_step_pin,HIGH);
+    digitalWrite(a.motor_step_pin,LOW);
 }
 
 
@@ -434,49 +460,54 @@ void robot_find_home() {
   Serial.println(F("Finding min..."));
 
   motor_enable();
-  
+  pause(1000);
+  //clear limit switch state variable
   char i;
+  for(i=0;i<6;++i) {
+    robot.arms[i].limit_switch_state = LOW;
+  }
   // until all switches are hit
   while(hexapod_read_switches()<6) {
-#if VERBOSE > 0
-  Serial.println(hexapod_read_switches(),DEC);
-#endif
+  #if VERBOSE > 0
+    Serial.println(hexapod_read_switches(),DEC);
+  #endif
     // for each stepper,
     for(i=0;i<6;++i) {
       // if this switch hasn't been hit yet
-      if(robot.arms[i].limit_switch_state == HIGH) {
+      if(robot.arms[i].limit_switch_state == LOW) {
         // move "down"
         hexapod_onestep(i,-1);
       }
     }
     pause(250);
-  }
-
-  // The arms are 19.69 degrees from straight down when they hit the switcrobot.
-  // @TODO: This could be better customized in firmware.
-  hexapod_loadHomeAngles();
-  
-  Serial.println(F("Homing..."));
-//#if VERBOSE > 0
-//  Serial.print("steps=");
-//  Serial.println(steps_to_zero);
-//#endif
-  char keepGoing;
-  do {
-    for(i=0;i<NUM_AXIES;++i) {
-      keepGoing=0;
-      if(robot.steps_to_zero[i]>0) {
-        --robot.steps_to_zero[i];
-        hexapod_onestep(i,1);
-        keepGoing=1;
-      }
     }
-    pause(250);
-  } while(keepGoing>0);
-    
-  // recalculate XYZ positions
-  hexapod_setup();
-  hexapod_loadHomeAngles();
+
+    // The arms are 19.69 degrees from straight down when they hit the switcrobot.
+    // @TODO: This could be better customized in firmware.
+    hexapod_loadHomeAngles();
+
+    Serial.println(F("Homing..."));
+  //#if VERBOSE > 0
+  //  Serial.print("steps=");
+  //  Serial.println(steps_to_zero);
+  //#endif
+    char keepGoing;
+    do {
+      for(i=0;i<NUM_AXIES;++i) {
+        keepGoing=0;
+        if(robot.steps_to_zero[i]>0) {
+          --robot.steps_to_zero[i];
+          hexapod_onestep(i,1);
+          keepGoing=1;
+        }
+      }
+      pause(250);
+    } while(keepGoing>0);
+
+    // recalculate XYZ positions
+    hexapod_setup();
+    hexapod_loadHomeAngles();
+    Serial.println(F("Homing complete!"));
 }
 
 
@@ -489,7 +520,7 @@ void robot_find_home() {
 // dir - ARC_CW or ARC_CCW to control direction of arc
 void robot_arc(float cx,float cy,float x,float y,float z,float dir,float new_feed_rate) {
   Vector3 offset_pos = robot_get_end_plus_offset();
-  
+
   // get radius
   float dx = offset_pos.x - cx;
   float dy = offset_pos.y - cy;
@@ -499,12 +530,12 @@ void robot_arc(float cx,float cy,float x,float y,float z,float dir,float new_fee
   float angle1=atan3(dy,dx);
   float angle2=atan3(y-cy,x-cx);
   float theta=angle2-angle1;
-  
+
   if(dir>0 && theta<0) angle2+=2*PI;
   else if(dir<0 && theta>0) angle1+=2*PI;
-  
+
   theta=angle2-angle1;
-  
+
   // get length of arc
   // float circ=PI*2.0*radius;
   // float len=theta*circ/(PI*2.0);
@@ -512,13 +543,13 @@ void robot_arc(float cx,float cy,float x,float y,float z,float dir,float new_fee
   float len = abs(theta) * radius;
 
   int i, segments = floor( len * MM_PER_SEGMENT );
- 
+
   float nx, ny, nz, angle3, scale;
 
   for(i=0;i<segments;++i) {
     // interpolate around the arc
     scale = ((float)i)/((float)segments);
-    
+
     angle3 = ( theta * scale ) + angle1;
     nx = cx + cos(angle3) * radius;
     ny = cy + sin(angle3) * radius;
@@ -526,7 +557,7 @@ void robot_arc(float cx,float cy,float x,float y,float z,float dir,float new_fee
     // send it to the planner
     robot_line(nx,ny,nz,robot.ee.r,robot.ee.p,robot.ee.y,new_feed_rate);
   }
-  
+
   robot_line(x,y,z,robot.ee.r,robot.ee.p,robot.ee.y,new_feed_rate);
 }
 
@@ -567,7 +598,7 @@ void robot_where() {
   output("F",feed_rate);
   output("A",acceleration);
   Serial.println(mode_abs?"ABS":"REL");
-} 
+}
 
 
 /**

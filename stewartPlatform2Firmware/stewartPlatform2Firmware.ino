@@ -1,3 +1,8 @@
+#include <Bounce2.h>
+#include <Arduino.h>
+#include <avr/pgmspace.h>
+
+
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
 // dan@marginallycelver.com 2013-09-20
@@ -16,6 +21,8 @@
 #include "hexapod.h"
 
 
+
+
 //------------------------------------------------------------------------------
 // GLOBALS
 //------------------------------------------------------------------------------
@@ -29,6 +36,20 @@ char mode_abs = 1; // absolute mode?
 // misc
 long robot_uid = 0;
 
+Bounce button = Bounce();
+
+//------------------------------------------------------------------------------
+// Function Declarations
+//------------------------------------------------------------------------------
+/**
+*/
+float atan3(float dy, float dx);
+void pause(long us);
+float feedrate(float nfr);
+void help();
+void sayVersionNumber();
+
+
 //------------------------------------------------------------------------------
 // METHODS
 //------------------------------------------------------------------------------
@@ -36,6 +57,19 @@ long robot_uid = 0;
     finds angle of dy/dx as a value from 0...2PI
     @return the angle
 */
+void input_setup(){
+  pinMode(BUTTON_PIN,INPUT_PULLUP);
+  button.attach(BUTTON_PIN);
+  button.interval(5);
+}
+
+void poll_inputs(){
+  button.update();
+  if (button.fell()){
+    run_prog(0);
+  }
+}
+
 float atan3(float dy, float dx) {
   float a = atan2(dy, dx);
   if (a < 0) a = (PI * 2.0) + a;
@@ -103,11 +137,14 @@ void help() {
                    "M100 (help)\n"\
                    "M110 N* (set line number to *)\n"\
                    "M114 (where)\n"\
+                   "M200 Start saved GCODE program\n"\
+                   "M201 Stop saved GCODE program\n"\
+                   "M202 Pause saved GCODE program\n"\
                    "UID * (write robot UID * to EEPROM)\n"\
                    "R60 [Aa] [Bb] [Cc] [Dd] [Ed] (set sensors adjustment to new value [abcde])\n"\
                    "R61 (display switch adjustment)\n"\
                    "R70 (write sensor adjustments to memory)\n"\
-                   "R71 (reset switch adjustmentles to factory default)\n"));
+                   "R71 (first time setup/reset switch adjustmentles to factory default)\n"));
   // See hexapod_position() for note about why G92 is removed
 }
 
@@ -127,9 +164,10 @@ void setup() {
   loadConfig();
 
   Serial.begin(BAUD);  // open coms
-  delay(10000);
+  delay(3000);
   motor_setup();
   segment_setup();
+  input_setup();
 
   hexapod_setup();
   feedrate(DEFAULT_FEEDRATE);  // set default speed
@@ -163,8 +201,10 @@ void loop() {
   Serial.println();
   delay(50);
 #endif
-  
+  poll_inputs();
   parser_listen();
+  parse_prog();
+  
 }
 
 

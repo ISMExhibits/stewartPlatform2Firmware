@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
 // dan@marginallycelver.com 2013-09-20
@@ -11,6 +13,32 @@
 //------------------------------------------------------------------------------
 #include "configuration.h"
 #include "segment.h"
+
+
+//------------------------------------------------------------------------------
+// Function Declarations
+//------------------------------------------------------------------------------
+/**
+*/
+//void wait_for_segment_buffer_to_empty();
+//char segment_buffer_full();
+//FORCE_INLINE int get_next_segment(int i);
+//FORCE_INLINE int get_prev_segment(int i);
+//float max_speed_allowed(float acceleration, float target_velocity, float distance);
+//void segment_setup();
+//void recalculate_reverse2(Segment *prev,Segment *current,Segment *next);
+//void recalculate_reverse();
+//void recalculate_forward();
+//int intersection_time(float acceleration,float distance,float start_speed,float end_speed);
+//void segment_update_trapezoid(Segment *s,float start_speed,float end_speed);
+//void recalculate_trapezoids();
+//void recalculate_acceleration();
+//FORCE_INLINE unsigned short calc_timer(long desired_freq_hz);
+//void motor_prepare_segment(int n0,int n1,int n2,int n3,int n4,int n5,float new_feed_rate)
+//
+
+
+
 
 
 //------------------------------------------------------------------------------
@@ -82,7 +110,7 @@ void segment_setup() {
   old_seg.a[4].step_count=0;
   old_seg.a[5].step_count=0;
   working_seg = NULL;
-  
+
   // disable global interrupts
   noInterrupts();
   // set entire TCCR1A register to 0
@@ -97,7 +125,7 @@ void segment_setup() {
   TCCR1B |= ( 1 << CS11 );
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
-  
+
   interrupts();  // enable global interrupts
 }
 
@@ -105,7 +133,7 @@ void segment_setup() {
 void recalculate_reverse2(Segment *prev,Segment *current,Segment *next) {
   if(current==NULL) return;
   if(next==NULL) return;
-  
+
   if (current->feed_rate_start != current->feed_rate_start_max) {
     // If nominal length true, max junction speed is guaranteed to be reached. Only compute
     // for max allowable speed if block is decelerating and nominal length is false.
@@ -124,7 +152,7 @@ void recalculate_reverse2(Segment *prev,Segment *current,Segment *next) {
 void recalculate_reverse() {
   int s = last_segment;
   Segment *blocks[3] = {NULL,NULL,NULL};
-  
+
   while(s != current_segment) {
     s=get_prev_segment(s);
     blocks[2]=blocks[1];
@@ -137,7 +165,7 @@ void recalculate_reverse() {
 
 void recalculate_forward2(Segment *prev,Segment *current,Segment *next) {
   if(prev==NULL) return;
-  
+
   // If the previous block is an acceleration block, but it is not long enough to complete the
   // full speed change within the block, we need to adjust the entry speed accordingly. Entry
   // speeds have already been reset, maximized, and reverse planned by reverse planner.
@@ -160,7 +188,7 @@ void recalculate_forward2(Segment *prev,Segment *current,Segment *next) {
 void recalculate_forward() {
   int s = current_segment;
   Segment *blocks[3] = {NULL,NULL,NULL};
-  
+
   while(s != last_segment) {
     s=get_next_segment(s);
     blocks[0]=blocks[1];
@@ -173,19 +201,19 @@ void recalculate_forward() {
 
 
 int intersection_time(float acceleration,float distance,float start_speed,float end_speed) {
-#if 0
-  return ( ( 2.0*acceleration*distance - start_speed*start_speed + end_speed*end_speed ) / (4.0*acceleration) );
-#else
-  float t2 = ( start_speed - end_speed + acceleration * distance ) / ( 2.0 * acceleration );
-  return distance - t2;
-#endif
+  #if 0
+    return ( ( 2.0*acceleration*distance - start_speed*start_speed + end_speed*end_speed ) / (4.0*acceleration) );
+  #else
+    float t2 = ( start_speed - end_speed + acceleration * distance ) / ( 2.0 * acceleration );
+    return distance - t2;
+  #endif
 }
 
 
 void segment_update_trapezoid(Segment *s,float start_speed,float end_speed) {
   if(start_speed<MIN_FEEDRATE) start_speed=MIN_FEEDRATE;
   if(end_speed<MIN_FEEDRATE) end_speed=MIN_FEEDRATE;
-  
+
   //int steps_to_accel =  ceil( (s->feed_rate_max*s->feed_rate_max - start_speed*start_speed )/ (2.0*acceleration) );
   //int steps_to_decel = floor( (end_speed*end_speed - s->feed_rate_max*s->feed_rate_max )/ -(2.0*acceleration) );
   int steps_to_accel =  ceil( ( s->feed_rate_max - start_speed ) / acceleration );
@@ -222,7 +250,7 @@ void recalculate_trapezoids() {
   int s = current_segment;
   Segment *current;
   Segment *next = NULL;
-  
+
   while(s != last_segment) {
     current = next;
     next = &line_segments[s];
@@ -254,7 +282,7 @@ void recalculate_acceleration() {
   //Serial.println("\nstart max,max,start,end,rate,total,up steps,cruise,down steps,nominal?");
   Serial.println("---------------");
   int s = current_segment;
-  
+
   while(s != last_segment) {
     Segment *next = &line_segments[s];
     s=get_next_segment(s);
@@ -283,11 +311,11 @@ FORCE_INLINE unsigned short calc_timer(long desired_freq_hz) {
   if( desired_freq_hz > MAX_FEEDRATE ) desired_freq_hz = MAX_FEEDRATE;
   if( desired_freq_hz < MIN_FEEDRATE ) desired_freq_hz = MIN_FEEDRATE;
   old_feed_rate = desired_freq_hz;
-  
+
   // Source: https://github.com/MarginallyClever/ArduinoTimerInterrupt
-  // Different clock sources can be selected for each timer independently. 
+  // Different clock sources can be selected for each timer independently.
   // To calculate the timer frequency (for example 2Hz using timer1) you will need:
-  
+
   if(desired_freq_hz > 20000 ) {
     step_multiplier = 4;
     desired_freq_hz >>= 2;
@@ -327,18 +355,18 @@ ISR(TIMER1_COMPA_vect) {
       digitalWrite( MOTOR_3_DIR_PIN, working_seg->a[3].dir );
       digitalWrite( MOTOR_4_DIR_PIN, working_seg->a[4].dir );
       digitalWrite( MOTOR_5_DIR_PIN, working_seg->a[5].dir );
-      
+
       // set frequency to segment feed rate
       nominal_OCR1A = calc_timer(working_seg->feed_rate_max);
       nominal_step_multiplier = step_multiplier;
-      
+
       start_feed_rate = working_seg->feed_rate_start;
       end_feed_rate = working_seg->feed_rate_end;
       current_feed_rate = start_feed_rate;
       time_decelerating = 0;
       time_accelerating = calc_timer(start_feed_rate);
       OCR1A = time_accelerating;
-      
+
       // defererencing some data so the loop runs faster.
       steps_total=working_seg->steps_total;
       steps_taken=0;
@@ -358,7 +386,7 @@ ISR(TIMER1_COMPA_vect) {
       OCR1A = 2000; // wait 1ms
     }
   }
-  
+
   if( working_seg != NULL ) {
     // move each axis
     for(int i=0;i<step_multiplier;++i) {
@@ -404,13 +432,13 @@ ISR(TIMER1_COMPA_vect) {
         over[5] -= steps_total;
         digitalWrite(MOTOR_5_STEP_PIN,HIGH);
       }
-      
+
       // make a step
       steps_taken++;
-      
+
       if(steps_taken >= steps_total) break;
     }
-    
+
 
     // accel
     unsigned short t;
@@ -455,7 +483,7 @@ void motor_prepare_segment(int n0,int n1,int n2,int n3,int n4,int n5,float new_f
   int prev_segment = get_prev_segment(last_segment);
   Segment &new_seg = line_segments[last_segment];
   Segment &old_seg = line_segments[prev_segment];
-  
+
   new_seg.a[0].step_count = n0;
   new_seg.a[1].step_count = n1;
   new_seg.a[2].step_count = n2;
@@ -502,7 +530,7 @@ void motor_prepare_segment(int n0,int n1,int n2,int n3,int n4,int n5,float new_f
       for(i=0;i<NUM_AXIES;++i) {
         cos_theta += new_seg.a[i].delta_normalized * old_seg.a[i].delta_normalized;
       }
-      
+
       feed_rate_start_max = min( new_seg.feed_rate_max, old_seg.feed_rate_max );
       if(cos_theta<0.95) {
         if(cos_theta<0) cos_theta = 0;
@@ -519,8 +547,8 @@ void motor_prepare_segment(int n0,int n1,int n2,int n3,int n4,int n5,float new_f
   new_seg.nominal_length_flag = ( allowable_speed >= new_seg.feed_rate_max );
   new_seg.recalculate_flag = true;
   new_seg.busy=false;
-  
-  // when should we accelerate and decelerate in this segment? 
+
+  // when should we accelerate and decelerate in this segment?
   segment_update_trapezoid(&new_seg,new_seg.feed_rate_start,MIN_FEEDRATE);
 
   last_segment = next_segment;

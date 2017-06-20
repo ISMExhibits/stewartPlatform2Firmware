@@ -11,7 +11,7 @@
 void loadConfig();
 void configSaveAdjustments();
 void saveUID();
-
+char loadVersion();
 
 
 #endif  // FLASH_H

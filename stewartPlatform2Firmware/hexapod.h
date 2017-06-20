@@ -25,12 +25,12 @@
 
 // individually correct each switch for best calibration.
 // default value taken from the 3D model.
-#define SWITCH_ANGLE1        (18.690)
-#define SWITCH_ANGLE2        (18.690)
-#define SWITCH_ANGLE3        (18.690)
-#define SWITCH_ANGLE4        (18.690)
-#define SWITCH_ANGLE5        (18.690)
-#define SWITCH_ANGLE6        (18.690)
+#define SWITCH_ANGLE1        (10.00)
+#define SWITCH_ANGLE2        (10.00)
+#define SWITCH_ANGLE3        (10.00)
+#define SWITCH_ANGLE4        (10.00)
+#define SWITCH_ANGLE5        (10.00)
+#define SWITCH_ANGLE6        (10.00)
 
 // top center to wrist hole (relative): X7.635 Y+/-0.553 Z0.87
 //#define T2W_X                ( 7.635)

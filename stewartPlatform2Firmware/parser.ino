@@ -1,9 +1,30 @@
+#include <Arduino.h>
+
 //------------------------------------------------------------------------------
 // Stewart Platform v2 - Supports RUMBA 6-axis motor shield
 // dan@marginallycelver.com 2013-09-20
 //------------------------------------------------------------------------------
 // Copyright at end of file.
 // please see http://www.github.com/MarginallyClever/RotaryStewartPlatform2 for more information.
+
+//------------------------------------------------------------------------------
+// Function Declarations
+//------------------------------------------------------------------------------
+/**
+*/
+//float parseNumber(char code,float val);
+//void output(char *code,float val);
+//void outputvector(Vector3 &v,char*name);
+//float has_code(char code);
+//void parser_processCommand();
+//void run_prog(char go);
+//void process_sensors_adjust();
+//void print_sensors_adjust();
+//void parser_ready();
+//void parser_listen();
+//void parse_prog();
+
+
 
 
 //------------------------------------------------------------------------------
@@ -13,6 +34,8 @@ static char buffer[MAX_BUF];  // where we store the message until we get a ';'
 static int sofar;  // how much is in the buffer
 static long last_cmd_time;    // prevent timeouts
 long line_number=0;
+char g_running = 0;
+int instr_num = 0;
 
 
 //------------------------------------------------------------------------------
@@ -33,7 +56,7 @@ float parseNumber(char code,float val) {
     ptr=strchr(ptr,' ')+1;
   }
   return val;
-} 
+}
 
 
 /**
@@ -82,9 +105,9 @@ float has_code(char code) {
 void parser_processCommand() {
   // blank lines
   if(buffer[0]==';') return;
-  
+
   long cmd;
-  
+
   // is there a line number?
   cmd=parseNumber('N',-1);
   if(cmd!=-1 && buffer[0]=='N') {  // line number must appear first on the line
@@ -94,7 +117,7 @@ void parser_processCommand() {
       Serial.println(line_number);
       return;
     }
-  
+
     // is there a checksum?
     if(strchr(buffer,'*')!=0) {
       // yes.  is it valid?
@@ -113,18 +136,18 @@ void parser_processCommand() {
       Serial.println(line_number);
       return;
     }
-    
+
     line_number++;
   }
-  
+
   if(!strncmp(buffer,"UID",3) && robot_uid==0) {
     robot_uid=atoi(strchr(buffer,' ')+1);
     saveUID();
   }
-  
+
   cmd = parseNumber('G',-1);
   switch(cmd) {
-  case  0: 
+  case  0:
   case  1: {  // move in a line
       acceleration = min(max(parseNumber('A',acceleration),1),2000);
       Vector3 offset=robot_get_end_plus_offset();
@@ -152,7 +175,8 @@ void parser_processCommand() {
   }
   case  4:  {  // dwell
     wait_for_segment_buffer_to_empty();
-    pause(parseNumber('S',0) + parseNumber('P',0)*1000);  
+    //pause(parseNumber('S',0) + parseNumber('P',0)*1000);
+    delay(parseNumber('P',1)*1000);
     break;
   }
   case 28:  robot_find_home();  break;
@@ -193,9 +217,12 @@ void parser_processCommand() {
   case 100:  help();  break;
   case 110:  line_number = parseNumber('N',line_number);  break;
   case 114:  robot_where();  break;
+  case 200: run_prog(0); break;// start canned routine
+  case 201: run_prog(1); break;//stop
+  case 202: run_prog(2); break;// pause
   default:  break;
   }
-  
+
   cmd = parseNumber('R',-1);
   switch(cmd) {
   case  5: sayVersionNumber();  break;
@@ -207,13 +234,30 @@ void parser_processCommand() {
   }
 }
 
+void run_prog(int go){
+  switch (go) {
+    case 0: {g_running = 1; //run gcode program
+             Serial.println(F("GCode Started.")); break;
+    }
+    case 1: {g_running = 0; //stop and reset gcode program
+      instr_num = 0;
+      Serial.println(F("GCode Stopped and reset.")); break;
+      }
+    case 2: {g_running = 0; //pause gcode without resetting instruciton number
+            Serial.println(F("GCode Paused.")); break;
+    }
+    default: break;
+  }
+}
+
+
 
 void process_sensors_adjust() {
   int i;
-  
+
   for(i=0;i<NUM_AXIES;++i) {
     if(!has_code(motor_letters[i])) continue;
-    
+
     // get the new angle
     robot.steps_to_zero[i] = parseNumber(motor_letters[i], robot.steps_to_zero[i] );
   }
@@ -237,7 +281,7 @@ void print_sensors_adjust() {
  */
 void parser_ready() {
   sofar=0;  // clear input buffer
-  Serial.print(F("\n>"));  // signal ready to receive input
+  //Serial.print(F("\n>"));  // signal ready to receive input
   last_cmd_time = millis();
 }
 
@@ -264,13 +308,40 @@ void parser_listen() {
       return;
     }
   }
-  
+
   // The PC will wait forever for the ready signal.
   // if Arduino hasn't received a new instruction in a while, send ready() again
   // just in case USB garbled ready and each half is waiting on the other.
   if( !segment_buffer_full() && (millis() - last_cmd_time) > TIMEOUT_OK ) {
     parser_ready();
   }
+}
+
+void parse_prog(){
+  if (g_running == 1){
+    if (sofar==0){
+      if( !segment_buffer_full()){
+        if (instr_num < 505){
+         strcpy_P(buffer, (PGM_P)pgm_read_word(&(code_table[instr_num])));
+         sofar = strnlen_P((PGM_P)pgm_read_word(&(code_table[instr_num])),60);
+         Serial.println(buffer); //echo out the command number
+         Serial.println((millis()-last_cmd_time));
+         instr_num++;
+         parser_processCommand();
+         parser_ready();
+         return;
+        }
+        else {
+          instr_num = 0;
+          g_running = 0;
+          Serial.println(F("GCode Program Finished."));
+          parser_ready();
+        }
+      }
+    }
+    return;
+  }
+  return;
 }
 
 

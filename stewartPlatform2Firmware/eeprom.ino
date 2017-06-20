@@ -1,13 +1,25 @@
+#include <Arduino.h>
+
 //--------------------------------------------------------
 // Evil Minion 5 Axis robot firmware
-// dan@marginallyclever.com 
+// dan@marginallyclever.com
 // 2015 September 3
 // see http://evilminion.info/ for more information.
 //--------------------------------------------------------
 #include "configuration.h"
 #include <EEPROM.h>
 
-
+//------------------------------------------------------------------------------
+// Function Declarations
+//------------------------------------------------------------------------------
+/**
+*/
+void EEPROM_writeLong(int ee, long value);
+long EEPROM_readLong(int ee);
+void EEPROM_writeFloat(int ee, float value);
+float EEPROM_readFloat(int ee);
+void saveAdjustments();
+//char loadVersion();
 
 
 //------------------------------------------------------------------------------
@@ -73,7 +85,7 @@ void loadConfig() {
   }
 
   robot_uid = EEPROM_readLong(ADDR_GUID);
-  
+
   Serial.println(F("Calibration loaded."));
 }
 
@@ -100,4 +112,3 @@ void saveUID() {
 char loadVersion() {
   return EEPROM.read(ADDR_VERSION);
 }
-
