@@ -104,6 +104,11 @@
 #define MOTOR_5_LIMIT_PIN  (29)
 
 #define BUTTON_PIN (50)
+#define MOTOR_SSR (48)
+#define SHOW_RELAY (49)
+#define SHOW_OVERRIDE (51)
+#define ENABLE (52)
+#define ENABLE_LAMP (53)
 
 //------------------------------------------------------------------------------
 // EEPROM MEMORY MAP

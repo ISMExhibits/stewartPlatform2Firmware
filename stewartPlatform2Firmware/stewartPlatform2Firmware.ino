@@ -32,11 +32,16 @@ float acceleration = DEFAULT_ACCELERATION;
 
 // settings
 char mode_abs = 1; // absolute mode?
+bool enabled = false; //machine state
+
 
 // misc
 long robot_uid = 0;
 
 Bounce button = Bounce();
+Bounce showRelay = Bounce();
+Bounce showOverride = Bounce();
+Bounce enableSwitch = Bounce();
 
 //------------------------------------------------------------------------------
 // Function Declarations
@@ -60,13 +65,52 @@ void sayVersionNumber();
 void input_setup(){
   pinMode(BUTTON_PIN,INPUT_PULLUP);
   button.attach(BUTTON_PIN);
-  button.interval(5);
+  button.interval(10);
+  pinMode(SHOW_RELAY,INPUT_PULLUP);
+  showRelay.attach(SHOW_RELAY);
+  showRelay.interval(10);
+  pinMode(SHOW_OVERRIDE,INPUT_PULLUP);
+  showOverride.attach(SHOW_OVERRIDE);
+  showOverride.interval(10);
+  pinMode(ENABLE,INPUT_PULLUP);
+  enableSwitch.attach(ENABLE);
+  enableSwitch.interval(10);
+  delay(50);
+}
+
+void output_setup(){
+  pinMode(MOTOR_SSR,OUTPUT);
+  digitalWrite(MOTOR_SSR,LOW);
+  pinMode(ENABLE_LAMP,OUTPUT);
+  digitalWrite(ENABLE_LAMP,LOW);
 }
 
 void poll_inputs(){
   button.update();
+  showRelay.update();
+  showOverride.update();
+  enableSwitch.update();
   if (button.fell()){
     run_prog(0);
+  }
+  if (!enableSwitch.read() && (!showOverride.read() || !showRelay.read())){ //should the power be on?
+     if (!enabled){
+      enabled = true;
+      run_prog(1); //ensure that no program is running. Same as M201
+      digitalWrite(ENABLE_LAMP, HIGH);
+      digitalWrite(MOTOR_SSR, HIGH);
+      delay(5000);
+     }
+  }
+  else{
+    if(enabled){
+      enabled = false;
+      run_prog(1); //ensure that no program is running. Same as M201
+      digitalWrite(ENABLE_LAMP, LOW);
+      delay(2000); //allow segment buffer to clear
+      digitalWrite(MOTOR_SSR, LOW); //cut off highvoltage servo power
+      delay(15000);
+    }
   }
 }
 
@@ -165,6 +209,7 @@ void setup() {
 
   Serial.begin(BAUD);  // open coms
   delay(3000);
+  output_setup();
   motor_setup();
   segment_setup();
   input_setup();
